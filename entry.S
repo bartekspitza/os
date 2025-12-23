@@ -2,14 +2,17 @@
 .global _start
 
 _start:
-    # 1. Set up the Stack Pointer
-    # We load the address 'stack_top' (from kernel.ld) into register sp
+    # Setup stack pointer 'stack_top' from kernel.ld
     la sp, stack_top
 
-    # 2. Jump to C
-    # We call the C function 'kernel_main'
+    # Clear .bss: [bss_start, bss_end)
+    la t0, bss_start
+    la t1, bss_end
+1:
+    bgeu t0, t1, 2f
+    sd zero, 0(t0)
+    addi t0, t0, 8
+    j 1b
+2:
     call kernel_main
-
-    # 3. Safety Loop
-    # If C ever returns (it shouldn't), we spin here forever.
     tail .

@@ -16,7 +16,12 @@ SECTIONS
   }
 
   .bss : {
-    *(.bss)
+    . = ALIGN(16);
+    bss_start = .;
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(16);
+    bss_end = .;
   }
 
   /* 

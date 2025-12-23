@@ -3,7 +3,7 @@ CC = riscv64-unknown-elf-gcc
 CFLAGS = -nostdlib -fno-builtin -mcmodel=medany -march=rv64ima -mabi=lp64 -g -Wall
 
 # Source files
-SRCS = entry.S kernel.c
+SRCS = entry.S kernel.c uart.c
 
 all: kernel.elf
 

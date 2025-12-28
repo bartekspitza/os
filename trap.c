@@ -31,6 +31,21 @@ void trap_init(void) {
 }
 
 void trap_handler(trapframe_t* tf) {
+    // Handle
+    if (tf->scause == 8) {
+        uintptr_t syscall = tf->a7;
+
+        if (syscall == 0) { // print
+            uart_puts((char*) tf->a0);
+        } else {
+            tf->a0 = -1;
+            uart_puts("Unknown syscall");
+        }
+
+        tf->sepc += 4;
+        return;
+    }
+
     uart_puts("\n=== TRAP ===\n");
     uart_puts(scause_is_interrupt(tf->scause) ? "type=interrupt\n" : "type=exception\n");
 

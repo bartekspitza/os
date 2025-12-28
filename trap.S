@@ -52,6 +52,10 @@ trap_entry:
     mv a0, sp
     call trap_handler
 
+    // Update sepc
+    ld t1, 32*8(sp)
+    csrw sepc, t1
+
     // Restore registers (reverse order is not required, but keep it tidy)
     ld ra,  0*8(sp)
     // ld sp,  1*8(sp)    // DON'T restore sp from saved value; we’re about to pop frame anyway

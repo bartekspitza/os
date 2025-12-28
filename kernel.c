@@ -1,14 +1,37 @@
 #include "uart.h"
 #include "trap.h"
 
-void kernel_main(void) {
-    uart_puts("Hello World");
+void user_program(void) {
+    // This will run in U-mode
+    register uint64_t a7 asm("a7") = 0;  // syscall 0
+    register const char* a0 asm("a0") = "Hello from U-mode!\n";
 
+    asm volatile("ecall" : : "r"(a7), "r"(a0));
+
+    // Loop forever after syscall
+    while (1) {}
+}
+
+void drop_to_u_and_call(uintptr_t progamm_addr) {
+    // Clear S mode bit in sstatus so sret drops to U-mode
+    uintptr_t mask = 1UL << 8;
+    asm volatile("csrrc zero, sstatus, %0" : : "r"(mask));
+
+    // Set sepc
+    asm volatile("csrrw zero, sepc, %0" : : "r"(progamm_addr));
+    asm volatile("sret");
+}
+
+void kernel_main(void) {
     // Install trap handler
     trap_init();
-    uart_puts("Trap handler installed. Triggering illegal instruction...\n");
+    uart_puts("\n");
+    uart_puts("==================================\n");
+    uart_puts("kernel: trap handler installed\n");
+    uart_puts("==================================\n\n");
 
-    asm volatile("unimp");  // should cause an exception trap
+    drop_to_u_and_call((uintptr_t) user_program);
 
-    while (1) {}
+    // while (1) {}
+
 }

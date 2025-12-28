@@ -1,3 +1,7 @@
+.section .rodata
+test_msg:
+    .asciz "hello from entry.S\n"
+
 .section .text.init
 .global _start
 
@@ -8,11 +12,18 @@ _start:
     # Clear .bss: [bss_start, bss_end)
     la t0, bss_start
     la t1, bss_end
-1:
-    bgeu t0, t1, 2f
+
+clear_bss:
+    bgeu t0, t1, run_kernel
     sd zero, 0(t0)
     addi t0, t0, 8
-    j 1b
-2:
+    j clear_bss
+
+run_kernel:
     call kernel_main
-    tail .
+
+    ecall
+
+hang:
+    wfi
+    j hang

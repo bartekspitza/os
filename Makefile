@@ -13,5 +13,8 @@ kernel.elf: $(SRCS) kernel.ld
 run: kernel.elf
 	qemu-system-riscv64 -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf
 
+debug: kernel.elf
+	qemu-system-riscv64 -machine virt -bios default -nographic -serial mon:stdio --no-reboot -kernel kernel.elf -s -S
+
 clean:
 	rm -f kernel.elf

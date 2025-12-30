@@ -30,22 +30,7 @@ void trap_init(void) {
     write_stvec((uint64_t)trap_entry);
 }
 
-void trap_handler(trapframe_t* tf) {
-    // Handle
-    if (tf->scause == 8) {
-        uintptr_t syscall = tf->a7;
-
-        if (syscall == 0) { // print
-            uart_puts((char*) tf->a0);
-        } else {
-            tf->a0 = -1;
-            uart_puts("Unknown syscall");
-        }
-
-        tf->sepc += 4;
-        return;
-    }
-
+void print_trap(trapframe_t* tf) {
     uart_puts("\n=== TRAP ===\n");
     uart_puts(scause_is_interrupt(tf->scause) ? "type=interrupt\n" : "type=exception\n");
 
@@ -55,4 +40,28 @@ void trap_handler(trapframe_t* tf) {
 
     // For now, just hang
     while (1) {}
+}
+
+void trap_handler(trapframe_t* tf) {
+    if (tf->scause != 8) {
+        print_trap(tf);
+        while (1) {}
+    }
+
+    uintptr_t syscall = tf->a7;
+
+    if (syscall == 0) { // print
+        uart_puts((char*) tf->a0);
+    } else if (syscall == 1) { // exit
+        // Halt for now, until we handle processes better
+        uart_puts("kernel: exit syscall - halting\n");
+        while (1) {
+            asm volatile("wfi"); // wait for interrupt
+        }
+    } else {
+        tf->a0 = -1;
+        uart_puts("Unknown syscall");
+    }
+
+    tf->sepc += 4;
 }

@@ -23,11 +23,14 @@ void drop_to_u_and_call(uintptr_t progamm_addr) {
 }
 
 void kernel_main(void) {
-    // Install trap handler
-    trap_init();
     uart_puts("\n");
     uart_puts("==================================\n");
+
+    // Install trap handler
+    trap_init();
     uart_puts("kernel: trap handler installed\n");
+
+    // End kernel init
     uart_puts("==================================\n\n");
 
     drop_to_u_and_call((uintptr_t) user_program);

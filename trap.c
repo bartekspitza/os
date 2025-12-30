@@ -42,6 +42,10 @@ void print_trap(trapframe_t* tf) {
     while (1) {}
 }
 
+#define SYS_print 0
+#define SYS_exit 1
+#define SYS_read 2
+
 void trap_handler(trapframe_t* tf) {
     if (tf->scause != 8) {
         print_trap(tf);
@@ -50,14 +54,33 @@ void trap_handler(trapframe_t* tf) {
 
     uintptr_t syscall = tf->a7;
 
-    if (syscall == 0) { // print
+    if (SYS_print == syscall) { // print
         uart_puts((char*) tf->a0);
-    } else if (syscall == 1) { // exit
+    } else if (SYS_exit == syscall) { // exit
         // Halt for now, until we handle processes better
         uart_puts("kernel: exit syscall - halting\n");
         while (1) {
             asm volatile("wfi"); // wait for interrupt
         }
+    } else if (SYS_read == syscall) { // read
+        // read(char* buf, uintptr_t len)
+        char* buf = (char*) tf->a0;
+        size_t len = tf->a1;
+
+        size_t i;
+        while (i < len) {
+            char c = uart_getc();
+            uart_putc(c);
+            buf[i] = c;
+            i++;
+
+            if (c == '\r' || c == '\n') {
+                break;
+            }
+        }
+
+        // return bytes read
+        tf->a0 = i;
     } else {
         tf->a0 = -1;
         uart_puts("Unknown syscall");

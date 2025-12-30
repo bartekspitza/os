@@ -1,12 +1,26 @@
 #include "uart.h"
 #include "trap.h"
+#include <stdint.h>
 
-void user_program(void) {
-    // This will run in U-mode
+void user_print(void) {
     register uint64_t a7 asm("a7") = 0;  // syscall 0
     register const char* a0 asm("a0") = "Hello from U-mode!\n";
 
     asm volatile("ecall" : : "r"(a7), "r"(a0));
+
+    // Loop forever after syscall
+    while (1) {}
+}
+
+void user_read(void) {
+    size_t len = 64; 
+    char buf[len];
+
+    register uint64_t a7 asm("a7") = 2;  // syscall 0
+    register const char* a0 asm("a0") = buf;
+    register const size_t a1 asm("a1") = len;
+
+    asm volatile("ecall" : : "r"(a7), "r"(a0), "r"(a1));
 
     // Loop forever after syscall
     while (1) {}
@@ -33,7 +47,7 @@ void kernel_main(void) {
     // End kernel init
     uart_puts("==================================\n\n");
 
-    drop_to_u_and_call((uintptr_t) user_program);
+    drop_to_u_and_call((uintptr_t) user_read);
 
     // while (1) {}
 

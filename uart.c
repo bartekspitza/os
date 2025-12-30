@@ -17,6 +17,14 @@ static inline uint8_t mmio_read(uintptr_t addr) {
     return *(volatile uint8_t*)addr;
 }
 
+char uart_getc(void) {
+    // Wait until data is ready
+    while ((mmio_read(UART0_BASE+UART_LSR) & 1) == 0) {}
+
+    // Return next char
+    return (char)mmio_read(UART0_BASE+UART_RHR);
+}
+
 void uart_putc(char c) {
     while ((mmio_read(UART0_BASE+UART_LSR) & LSR_TX_IDLE) == 0) {}
 

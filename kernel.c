@@ -19,8 +19,9 @@ void user_read(void) {
     register uint64_t a7 asm("a7") = 2;  // syscall 0
     register const char* a0 asm("a0") = buf;
     register const size_t a1 asm("a1") = len;
+    register size_t ret asm("a0");
 
-    asm volatile("ecall" : : "r"(a7), "r"(a0), "r"(a1));
+    asm volatile("ecall" : "=r"(ret) : "r"(a7), "r"(a0), "r"(a1));
 
     // Loop forever after syscall
     while (1) {}

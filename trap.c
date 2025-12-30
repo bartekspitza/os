@@ -1,5 +1,6 @@
 #include "trap.h"
 #include "uart.h"
+#include "syscall.h"
 #include <stdint.h>
 
 static inline void write_stvec(uint64_t x) {
@@ -30,61 +31,19 @@ void trap_init(void) {
     write_stvec((uint64_t)trap_entry);
 }
 
-void print_trap(trapframe_t* tf) {
+void trap_handler(trapframe_t* tf) {
+    // Handle exceptions from U-mode (syscalls)
+    if (tf->scause == 8) {
+        syscall_handler(tf);
+        return;
+    }
+
+    // Print and hang on all other exceptions
     uart_puts("\n=== TRAP ===\n");
     uart_puts(scause_is_interrupt(tf->scause) ? "type=interrupt\n" : "type=exception\n");
 
     uart_puts("scause="); uart_puthex(tf->scause); uart_puts("\n");
     uart_puts("sepc  ="); uart_puthex(tf->sepc);   uart_puts("\n");
     uart_puts("stval ="); uart_puthex(tf->stval);  uart_puts("\n");
-
-    // For now, just hang
     while (1) {}
-}
-
-#define SYS_print 0
-#define SYS_exit 1
-#define SYS_read 2
-
-void trap_handler(trapframe_t* tf) {
-    if (tf->scause != 8) {
-        print_trap(tf);
-        while (1) {}
-    }
-
-    uintptr_t syscall = tf->a7;
-
-    if (SYS_print == syscall) { // print
-        uart_puts((char*) tf->a0);
-    } else if (SYS_exit == syscall) { // exit
-        // Halt for now, until we handle processes better
-        uart_puts("kernel: exit syscall - halting\n");
-        while (1) {
-            asm volatile("wfi"); // wait for interrupt
-        }
-    } else if (SYS_read == syscall) { // read
-        // read(char* buf, uintptr_t len)
-        char* buf = (char*) tf->a0;
-        size_t len = tf->a1;
-
-        size_t i;
-        while (i < len) {
-            char c = uart_getc();
-            uart_putc(c);
-            buf[i] = c;
-            i++;
-
-            if (c == '\r' || c == '\n') {
-                break;
-            }
-        }
-
-        // return bytes read
-        tf->a0 = i;
-    } else {
-        tf->a0 = -1;
-        uart_puts("Unknown syscall");
-    }
-
-    tf->sepc += 4;
 }

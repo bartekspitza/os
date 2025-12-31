@@ -2,11 +2,12 @@
 #include "trap.h"
 #include <stdint.h>
 
-void user_print(void) {
+void user_write(void) {
     register uint64_t a7 asm("a7") = 0;  // syscall 0
     register const char* a0 asm("a0") = "Hello from U-mode!\n";
 
     asm volatile("ecall" : : "r"(a7), "r"(a0));
+
 
     // Loop forever after syscall
     while (1) {}
@@ -19,9 +20,11 @@ void user_read(void) {
     register uint64_t a7 asm("a7") = 2;  // syscall 0
     register const char* a0 asm("a0") = buf;
     register const size_t a1 asm("a1") = len;
-    register size_t ret asm("a0");
 
-    asm volatile("ecall" : "=r"(ret) : "r"(a7), "r"(a0), "r"(a1));
+    asm volatile("ecall" : "+r"(a0) : "r"(a7), "r"(a1));
+    size_t bytes_read = (size_t) a0;
+
+    uart_puts("asdf");
 
     // Loop forever after syscall
     while (1) {}

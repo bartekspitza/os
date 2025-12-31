@@ -9,7 +9,7 @@
  * @param len Max chars if newline is not seen
  * @return The number of bytes read
  */
-size_t sys_read(trapframe_t* tf) {
+void sys_read(trapframe_t* tf) {
     char* buf = (char*) tf->a0;
     size_t len = tf->a1;
 
@@ -24,7 +24,7 @@ size_t sys_read(trapframe_t* tf) {
             break;
         }
     }
-    return i;
+    tf->a0 = i;
 }
 
 /**
@@ -32,6 +32,7 @@ size_t sys_read(trapframe_t* tf) {
  */
 void sys_write(trapframe_t* tf) {
     uart_puts((char*) tf->a0);
+    tf->a0 = 0;
 }
 
 void sys_exit(trapframe_t* tf) {

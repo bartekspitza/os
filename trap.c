@@ -26,7 +26,6 @@ static int scause_is_interrupt(uint64_t scause) {
 void trap_init(void) {
     // trap_entry is our assembly trap func
     // use extern to be able to reference it
-
     extern void trap_entry(void);
     write_stvec((uint64_t)trap_entry);
 }

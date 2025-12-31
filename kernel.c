@@ -1,10 +1,11 @@
 #include "uart.h"
 #include "trap.h"
 #include "lib.h"
+#include "syscall.h"
 #include <stdint.h>
 
 void user_write(void) {
-    register uint64_t a7 asm("a7") = 0;  // syscall 0
+    register uint64_t a7 asm("a7") = SYS_write;
     register const char* a0 asm("a0") = "Hello from U-mode!\n";
 
     asm volatile("ecall" : : "r"(a7), "r"(a0));
@@ -18,7 +19,7 @@ void user_read(void) {
     size_t len = 64; 
     char buf[len];
 
-    register uint64_t a7 asm("a7") = 2;  // syscall 0
+    register uint64_t a7 asm("a7") = SYS_read;
     register uint64_t a0 asm("a0") = (uint64_t) buf;
     register const size_t a1 asm("a1") = len;
 
@@ -54,6 +55,9 @@ void kernel_main(void) {
     // End kernel init
     uart_puts("==================================\n\n");
 
+    uart_puts("Hello. The kernel switched to U mode, issues a read syscall and is now back in S mode,\n");
+    uart_puts("waiting for input. Upon newline, execution is back in U-mode, which will, with another syscall,\n");
+    uart_puts("output the length:\n");
     drop_to_u_and_call((uintptr_t) user_read);
 
     // while (1) {}

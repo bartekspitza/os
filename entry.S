@@ -6,8 +6,8 @@ test_msg:
 .global _start
 
 _start:
-    # Setup stack pointer 'stack_top' from kernel.ld
-    la sp, stack_top
+    # Setup initial stack pointer 'boot_stack' from kernel.ld
+    la sp, boot_stack
 
     # Clear .bss: [bss_start, bss_end)
     la t0, bss_start

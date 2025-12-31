@@ -25,10 +25,10 @@ SECTIONS
   }
 
   /* 
-     Allocate 4KB (4096 bytes) for the stack.
+     Allocate 4KB (4096 bytes) for the boot stack.
      The stack grows DOWN, so we need the address of the TOP.
   */
   . = ALIGN(16);
   . += 4096;
-  stack_top = .;
+  boot_stack = .;
 }

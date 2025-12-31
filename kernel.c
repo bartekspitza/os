@@ -2,6 +2,7 @@
 #include "trap.h"
 #include "lib.h"
 #include "syscall.h"
+#include "kalloc.h"
 #include <stdint.h>
 
 void user_write(void) {
@@ -51,6 +52,11 @@ void kernel_main(void) {
     // Install trap handler
     trap_init();
     uart_puts("kernel: trap handler installed\n");
+
+    // Init kernel memory
+    kinit();
+    uart_puts("kernel: kernel memory initialized\n");
+
 
     // End kernel init
     uart_puts("==================================\n\n");

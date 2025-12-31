@@ -3,7 +3,7 @@ CC = riscv64-unknown-elf-gcc
 CFLAGS = -nostdlib -fno-builtin -mcmodel=medany -march=rv64ima_zicsr -mabi=lp64 -g -Wall -Iinclude --freestanding
 
 # Source files
-SRCS = entry.S kernel.c uart.c trap.c trap.S syscall.c lib.c
+SRCS = entry.S kernel.c uart.c trap.c trap.S syscall.c lib.c kalloc.c
 
 all: kernel.elf
 

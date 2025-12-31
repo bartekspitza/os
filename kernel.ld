@@ -31,4 +31,10 @@ SECTIONS
   . = ALIGN(16);
   . += 4096;
   boot_stack = .;
+
+  /*
+    Align to 4096 pages for rest of memory
+  */
+  . = ALIGN(4096);
+  end = .;
 }

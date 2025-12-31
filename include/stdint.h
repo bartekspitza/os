@@ -13,3 +13,7 @@ typedef signed long        int64_t;
 typedef unsigned long      uintptr_t;
 typedef signed long        intptr_t;
 typedef unsigned long      size_t;
+
+#ifndef NULL
+#define NULL ((void*)0)
+#endif

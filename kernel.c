@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "trap.h"
+#include "lib.h"
 #include <stdint.h>
 
 void user_write(void) {
@@ -18,13 +19,15 @@ void user_read(void) {
     char buf[len];
 
     register uint64_t a7 asm("a7") = 2;  // syscall 0
-    register const char* a0 asm("a0") = buf;
+    register uint64_t a0 asm("a0") = (uint64_t) buf;
     register const size_t a1 asm("a1") = len;
 
     asm volatile("ecall" : "+r"(a0) : "r"(a7), "r"(a1));
-    size_t bytes_read = (size_t) a0;
 
-    uart_puts("asdf");
+    char br_buf[32];
+    char* bytes_read = itoa((int) a0, 10, br_buf, sizeof(br_buf));
+    uart_puts("\nBytes read: ");
+    uart_puts(bytes_read);
 
     // Loop forever after syscall
     while (1) {}

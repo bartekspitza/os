@@ -3,6 +3,7 @@
 #include "lib.h"
 #include "syscall.h"
 #include "kalloc.h"
+#include "proc.h"
 #include <stdint.h>
 
 void user_write(void) {
@@ -56,6 +57,10 @@ void kernel_main(void) {
     // Init kernel memory
     kinit();
     uart_puts("kernel: kernel memory initialized\n");
+
+    // Init process table
+    proc_init();
+    uart_puts("kernel: process table initialized\n");
 
 
     // End kernel init

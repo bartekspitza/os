@@ -1,6 +1,5 @@
+#include "kalloc.h"
 #include <stdint.h>
-
-#define PAGE_SIZE 4096
 
 /**
  * The address of the end label (in kernel.ld) calculated by the linker.

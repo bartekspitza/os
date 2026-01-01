@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#define PAGE_SIZE 4096
+
 /**
  * The address of the end label (in kernel.ld) calculated by the linker.
  * Do NOT use `extern char* end;` as C generates different instructions when used
@@ -48,7 +50,7 @@ void kinit(void) {
 
     char* p = (char*) end;
 
-    for (; p + 4096 <= mem_end; p += 4096) {
+    for (; p + PAGE_SIZE <= mem_end; p += PAGE_SIZE) {
         kfree(p);
     }
 }
@@ -56,7 +58,7 @@ void kinit(void) {
 /**
  * Returns a pointer to a fresh page. Because freelist is a global variable,
  * it lives in .bss and is initialized to 0, this means that onces kinit has ran,
- * the very last page (even though this last page actually lives at the earliest memory location, i.e. end + 4096)
+ * the very last page (even though this last page actually lives at the earliest memory location, i.e. end + PAGE_SIZE)
  * will have its .next pointer be the original freelist declaration, which is 0, therefore,
  * simply returning this nicely translates to a NULL value.
  */

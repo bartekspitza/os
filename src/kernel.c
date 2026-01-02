@@ -46,6 +46,24 @@ void drop_to_u_and_call(uintptr_t progamm_addr) {
     asm volatile("sret");
 }
 
+struct proc *current;
+/**
+ * Declare the trampoline defined in entry.S that will switch
+ * the sp to the current process' kstack addr, then jump to
+ * the provided function
+ */
+__attribute__((noreturn))
+extern void kstack_trampoline(uintptr_t kstack_addr, void (*fn_to_jump_to)(void));
+
+/**
+ * This is the function that above invocation will jump to.
+ * At this point, the stack is now swithed from the boot stack
+ * to the current process kstack
+ */
+void kernel_after_stack_switch() {
+    drop_to_u_and_call((uintptr_t) user_read);
+}
+
 void kernel_main(void) {
     uart_puts("\n");
     uart_puts("==================================\n");
@@ -62,15 +80,12 @@ void kernel_main(void) {
     proc_init();
     uart_puts("kernel: process table initialized\n");
 
-
     // End kernel init
     uart_puts("==================================\n\n");
 
-    uart_puts("Hello. The kernel switched to U mode, issues a read syscall and is now back in S mode,\n");
-    uart_puts("waiting for input. Upon newline, execution is back in U-mode, which will, with another syscall,\n");
-    uart_puts("output the length:\n");
-    drop_to_u_and_call((uintptr_t) user_read);
+    // Switch to init user process
+    current = allocproc();
+    kstack_trampoline(current->kstack, kernel_after_stack_switch);
 
-    // while (1) {}
-
+    __builtin_unreachable();
 }

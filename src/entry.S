@@ -3,7 +3,7 @@ test_msg:
     .asciz "hello from entry.S\n"
 
 .section .text.init
-.global _start
+.global _start, kstack_trampoline
 
 _start:
     # Setup initial stack pointer 'boot_stack' from kernel.ld
@@ -22,8 +22,10 @@ clear_bss:
 run_kernel:
     call kernel_main
 
-    ecall
-
 hang:
     wfi
     j hang
+
+kstack_trampoline:
+    mv sp, a0
+    jr a1

@@ -1,5 +1,26 @@
 #include <stdint.h>
 
+void* memset(void *dst, int fill_with, size_t n_bytes) {
+    uint8_t *p = (uint8_t *) dst;
+
+    for (size_t i = 0; i < n_bytes; i++) {
+        *(p+i) = (uint8_t) fill_with;
+    }
+
+    return dst;
+}
+
+void *memcpy(void *dst, const void *src, size_t n_bytes) {
+    uint8_t *dp = (uint8_t *) dst;
+    const uint8_t *sp = (uint8_t *) src;
+
+    for (size_t i = 0; i < n_bytes; i++) {
+        *(dp+i) = *(sp+i);
+    }
+
+    return dst;
+}
+
 /**
  * Base-10 str to int conversion
  */

@@ -3,4 +3,6 @@ Ghidra.gpr
 Ghidra.lock
 Ghidra.lock~
 Ghidra.rep/
-
+user/init.bin
+user/init.elf
+user/initbin.o

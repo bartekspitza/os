@@ -7,12 +7,18 @@ SECTIONS
   . = 0x80200000;
 
   .text : {
-    *(.text.init) /* The entry point goes first */
-    *(.text)      /* The rest of the code */
+    *(.text.init)
+    *(.text .text.*)
+  }
+
+  .rodata : {
+    *(.rodata .rodata.*)
   }
 
   .data : {
-    *(.data)
+    *(.data .data.*)
+    *(.sdata .sdata.*)
+    data_end = .;
   }
 
   .bss : {

@@ -68,7 +68,7 @@ void* kalloc() {
     // freelist will now be 0, NULL, and attempting to set that memory region (freelist->next)
     // would crash the program
     if (r) {
-        freelist = freelist->next;
+        freelist = r->next;
     }
     return (void*) r;
 }

@@ -60,8 +60,15 @@ extern void kstack_trampoline(uintptr_t kstack_addr, void (*fn_to_jump_to)(void)
  * At this point, the stack is now swithed from the boot stack
  * to the current process kstack
  */
-void kernel_after_stack_switch() {
-    drop_to_u_and_call((uintptr_t) user_read);
+void kernel_after_stack_switch(void) {
+    void *root_page = kalloc(); 
+
+    uintptr_t ppn = (uintptr_t) root_page >> 12;
+    uint64_t mode = 8L << 60; // sv39
+    uint64_t satp = 0L | mode | ppn; // asid = 0
+    // @todo init the page table
+
+    // drop_to_u_and_call((uintptr_t) user_read);
 }
 
 void kernel_main(void) {

@@ -56,14 +56,29 @@ struct proc *current;
 __attribute__((noreturn))
 extern void kstack_trampoline(uintptr_t kstack_addr, void (*fn_to_jump_to)(void));
 
+void after_kstack_switch(void) {
+    uart_puts("Preparing to run user process");
+    while(1) {}
+}
+
 static void kernel_after_paging(void) {
     uart_puts("kernel: paging enabled, jumped to higher-half alias\n");
 
-    // Your next steps can go here (e.g. switch stack to higher half, update stvec, etc.)
-    while (1) {}
+    // Init process table
+    proc_init();
+    uart_puts("kernel: process table initialized\n");
+
+    // End kernel init
+    uart_puts("==================================\n\n");
+
+    // Switch to init user process
+    current = allocproc();
+    kstack_trampoline(current->kstack, after_kstack_switch);
+
+    __builtin_unreachable();
 }
 
-void kernel_after_stack_switch(void) {
+void enable_paging() {
     // Allocate root page table (physical page)
     void *root_page = kalloc();
     if (!root_page) {
@@ -76,14 +91,12 @@ void kernel_after_stack_switch(void) {
     // Enable paging (identity map keeps us alive immediately after satp write)
     vm_enable_paging((pagetable_t)root_page);
 
-    // Jump to higher-half alias via direct map:
-    // VA_alias = VA_DMAP_START + PA_current
+    // Perform jump (move PC) to the direct map
     void (*hi)(void) = (void (*)(void))((uintptr_t)kernel_after_paging + (uintptr_t)VA_DMAP_START);
     hi();
 
     __builtin_unreachable();
 }
-
 
 void kernel_main(void) {
     uart_puts("\n");
@@ -97,16 +110,7 @@ void kernel_main(void) {
     kinit();
     uart_puts("kernel: kernel memory initialized\n");
 
-    // Init process table
-    proc_init();
-    uart_puts("kernel: process table initialized\n");
-
-    // End kernel init
-    uart_puts("==================================\n\n");
-
-    // Switch to init user process
-    current = allocproc();
-    kstack_trampoline(current->kstack, kernel_after_stack_switch);
-
+    // Enable paging: virtual memory
+    enable_paging();
     __builtin_unreachable();
 }

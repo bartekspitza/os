@@ -1,6 +1,5 @@
+#include "param.h"
 #include <stdint.h>
-
-#define UART0_BASE 0x10000000UL
 
 // 16550 registers (offsets)
 #define UART_RHR 0x00 // Receive holding (read)

@@ -1,6 +1,7 @@
 #include "proc.h"
 #include "kalloc.h"
 #include "lib.h"
+#include <param.h>
 #include <stdint.h>
 
 struct proc proc_table[NPROC];

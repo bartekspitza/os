@@ -1,4 +1,5 @@
 #include "kalloc.h"
+#include <param.h>
 #include <stdint.h>
 
 /**

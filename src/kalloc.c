@@ -44,9 +44,8 @@ void kfree(void* pa) {
  * will actually yield pages at lower addresses. This doesn't matter but interesting to note.
  */
 void kinit(void) {
-
-    // Define the memend, assume 128MB
-    char* mem_end = (void*) 0x80000000 + (128 * 1024 * 1024);
+    // Define the memend
+    char* mem_end = (void*) PHYS_RAM_START + PHYS_RAM_SIZE;
 
     char* p = (char*) end;
 

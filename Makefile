@@ -4,11 +4,11 @@ AS      = riscv64-unknown-elf-as
 LD      = riscv64-unknown-elf-ld
 OBJCOPY = riscv64-unknown-elf-objcopy
 
-CFLAGS  = -nostdlib -fno-builtin -mcmodel=medany -march=rv64ima_zicsr -mabi=lp64 -g -Wall -Iinclude --freestanding
+CFLAGS  = -nostdlib -fno-builtin -mcmodel=medany -march=rv64ima_zicsr_zifencei -mabi=lp64 -g -Wall -Iinclude --freestanding
 LDFLAGS = -T kernel.ld
 
 # Kernel sources
-KSRCS = src/entry.S src/kernel.c src/uart.c src/trap.c src/trap.S src/syscall.c src/lib.c src/kalloc.c src/proc.c
+KSRCS = src/entry.S src/kernel.c src/uart.c src/trap.c src/trap.S src/syscall.c src/lib.c src/kalloc.c src/proc.c src/vm.c
 
 # User init program
 USER_INIT_SRC = user/init.S
